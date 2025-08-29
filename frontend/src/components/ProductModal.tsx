@@ -1,3 +1,4 @@
+// src/components/ProductModal.tsx
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
@@ -8,7 +9,7 @@ import Spinner from "./Spinner";
 
 export default function ProductModal() {
   const { productId, closeProduct } = useUIStore();
-  const { add } = useCart();
+  const { cart, add, setQty, remove } = useCart();
 
   const { data, isFetching } = useQuery({
     queryKey: ["product", productId],
@@ -17,6 +18,9 @@ export default function ProductModal() {
   });
 
   if (!productId) return null;
+
+  const line = cart.data?.items.find(i => i.product._id === productId);
+  const qty = line?.quantity ?? 0;
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50" onClick={closeProduct}>
@@ -28,15 +32,39 @@ export default function ProductModal() {
             <img src={data.imageUrl} alt={data.title} className="h-64 w-full object-cover rounded-xl" />
             <h3 className="mt-3 text-xl font-semibold">{data.title}</h3>
             <p className="text-gray-700 mt-1">{data.description}</p>
-            <div className="mt-2 font-semibold">{inr.format(data.price)}</div>
+            <div className="mt-2 font-semibold">{inr(data.price)}</div>
+
             <div className="mt-4 flex gap-2">
               <button className="rounded-md border px-3 py-1.5" onClick={closeProduct}>Close</button>
-              <button
-                className="rounded-md bg-black text-white px-3 py-1.5"
-                onClick={() => add.mutate({ productId: data._id, quantity: 1 })}
-              >
-                Add to Cart
-              </button>
+
+              {qty === 0 ? (
+                <button
+                  className="rounded-md bg-black text-white px-3 py-1.5"
+                  onClick={() => add.mutate({ productId: data._id, quantity: 1 })}
+                >
+                  Add to Cart
+                </button>
+              ) : (
+                <div className="ml-auto flex items-center gap-2">
+                  <button
+                    className="rounded-md border px-3 py-1.5"
+                    onClick={() =>
+                      qty - 1 <= 0
+                        ? remove.mutate(data._id)
+                        : setQty.mutate({ productId: data._id, quantity: qty - 1 })
+                    }
+                  >
+                    –
+                  </button>
+                  <span>{qty}</span>
+                  <button
+                    className="rounded-md border px-3 py-1.5"
+                    onClick={() => setQty.mutate({ productId: data._id, quantity: qty + 1 })}
+                  >
+                    +
+                  </button>
+                </div>
+              )}
             </div>
           </>
         )}

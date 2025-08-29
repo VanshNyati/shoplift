@@ -6,11 +6,15 @@ export default function CategoryFilter() {
   const { data } = useCategories();
   const { categoryId, setCategory } = useFilterStore();
 
+  const base =
+    "rounded-full border px-3 py-1.5 text-sm transition-colors hover:bg-gray-50";
+  const active = "bg-black text-white border-black hover:bg-black";
+
   return (
-    <div className="flex gap-2 flex-wrap">
+    <div className="flex flex-wrap gap-2">
       <button
         onClick={() => setCategory(undefined)}
-        className={`px-3 py-1 rounded border ${!categoryId ? "bg-black text-white" : ""}`}
+        className={`${base} ${!categoryId ? active : ""}`}
       >
         All
       </button>
@@ -18,7 +22,7 @@ export default function CategoryFilter() {
         <button
           key={c._id}
           onClick={() => setCategory(c._id)}
-          className={`px-3 py-1 rounded border ${categoryId === c._id ? "bg-black text-white" : ""}`}
+          className={`${base} ${categoryId === c._id ? active : ""}`}
         >
           {c.name}
         </button>
