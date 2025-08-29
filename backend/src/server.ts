@@ -12,7 +12,11 @@ async function main() {
   await connectDB();
 
   const app = express();
-  app.use(cors());
+  app.use(cors({
+    origin: process.env.FRONTEND_URL ?? "*", // don’t wrap in array
+    credentials: true,
+  }));
+
   app.use(express.json());
   app.use(morgan('dev'));
 

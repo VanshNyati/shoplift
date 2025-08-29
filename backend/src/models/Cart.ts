@@ -1,13 +1,29 @@
-import { Schema, model, Types } from 'mongoose';
+import { Schema, model, Types, Document } from 'mongoose';
 
-const cartItemSchema = new Schema({
-  productId: { type: Types.ObjectId, ref: 'Product', required: true },
-  quantity: { type: Number, required: true, min: 1 },
-}, { _id: false });
+export interface CartItem {
+  productId: Types.ObjectId;
+  quantity: number;
+}
 
-const cartSchema = new Schema({
-  userId: { type: String, required: true, index: true, unique: true },
-  items: { type: [cartItemSchema], default: [] },
-}, { timestamps: true });
+export interface CartDoc extends Document {
+  userId: string;        // or ObjectId if you want
+  items: CartItem[];     // <-- plain array in TS, not DocumentArray
+}
 
-export const Cart = model('Cart', cartSchema);
+const cartItemSchema = new Schema<CartItem>(
+  {
+    productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
+    quantity: { type: Number, required: true, min: 1 },
+  },
+  { _id: false }
+);
+
+const cartSchema = new Schema<CartDoc>(
+  {
+    userId: { type: String, required: true, index: true, unique: true },
+    items: { type: [cartItemSchema], default: [] },
+  },
+  { timestamps: true }
+);
+
+export const Cart = model<CartDoc>('Cart', cartSchema);
