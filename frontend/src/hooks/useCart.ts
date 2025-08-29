@@ -1,7 +1,7 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
-import type { Cart } from "@/types/api";
+import type { Cart } from "@/type/api";
 
 const USER_ID = "demo-user"; // mock user
 

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import SearchBar from "./SearchBar";
 import { useUIStore } from "@/stores/useUIStore";
 import { useCart } from "@/hooks/useCart";
+import type { CartItem } from "@/type/api"; // ✅ add
 
 export default function Header() {
   const { setCartOpen } = useUIStore();
@@ -12,8 +13,9 @@ export default function Header() {
   const pathname = usePathname();
   const isAdminPage = pathname.startsWith("/admin");
 
-  const totalQty =
-    cart.data?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0;
+  // ✅ keep a strongly-typed array so reducer params aren't 'any'
+  const items: CartItem[] = cart.data?.items ?? [];
+  const totalQty = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
     <header className="border-b bg-white/80 backdrop-blur">

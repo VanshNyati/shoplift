@@ -1,6 +1,6 @@
 // simple wrappers around your existing REST API
 import { api } from '@/lib/api';
-import type { Product } from '@/types/api';
+import type { Product } from '@/type/api';
 
 export type UpsertProductDto = {
   title: string;

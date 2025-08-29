@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import { inr } from "@/lib/format";
-import type { Product, Category } from "@/types/api";
+import type { Product, Category } from "@/type/api";
 
 export default function AdminIndex() {
   const qc = useQueryClient();

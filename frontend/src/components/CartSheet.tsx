@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useUIStore } from "@/stores/useUIStore";
 import { useCart } from "@/hooks/useCart";
 import { inr } from "@/lib/format";
+import type { CartItem } from "@/type/api"; // ✅ add this
 
 export default function CartSheet() {
   const { cartOpen, setCartOpen } = useUIStore();
@@ -17,6 +18,9 @@ export default function CartSheet() {
   }, [cartOpen, setCartOpen]);
 
   if (!cartOpen) return null;
+
+  // ✅ keep a strongly-typed array to avoid implicit any in map()
+  const items: CartItem[] = cart.data?.items ?? [];
 
   return (
     <div
@@ -41,7 +45,7 @@ export default function CartSheet() {
         {/* Items */}
         <div className="max-h-[calc(100vh-160px)] overflow-y-auto p-4">
           <div className="space-y-3">
-            {cart.data?.items.map((i) => (
+            {items.map((i) => (
               <div key={i.product._id} className="flex items-center gap-3 rounded-xl border p-2">
                 <img
                   src={i.product.imageUrl}
@@ -77,7 +81,7 @@ export default function CartSheet() {
                 </div>
               </div>
             ))}
-            {cart.data?.items.length === 0 && (
+            {items.length === 0 && (
               <div className="rounded-xl border p-6 text-center text-sm text-gray-600">
                 Cart is empty
               </div>
@@ -93,7 +97,7 @@ export default function CartSheet() {
           </div>
           <button
             className="mt-3 w-full rounded-xl bg-black py-2.5 text-white shadow hover:bg-gray-900 active:translate-y-px disabled:opacity-60"
-            disabled={!cart.data || cart.data.items.length === 0}
+            disabled={items.length === 0}
           >
             Checkout
           </button>

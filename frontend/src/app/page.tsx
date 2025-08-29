@@ -1,4 +1,6 @@
 "use client";
+
+import { useEffect, useState } from "react";
 import { useProducts } from "@/hooks/useProducts";
 import { useFilterStore } from "@/stores/useFilterStore";
 import { useUIStore } from "@/stores/useUIStore";
@@ -7,7 +9,7 @@ import ProductCard from "@/components/ProductCard";
 import ProductModal from "@/components/ProductModal";
 import CartSheet from "@/components/CartSheet";
 import Spinner from "@/components/Spinner";
-import { useEffect, useState } from "react";
+import type { Product } from "@/type/api"; 
 
 export default function Page() {
   const { data, isFetching } = useProducts();
@@ -15,6 +17,9 @@ export default function Page() {
   const { productId } = useUIStore();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  // keep a strongly-typed array for rendering
+  const products: Product[] = data?.data ?? [];
 
   return (
     <>
@@ -54,7 +59,7 @@ export default function Page() {
               mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2",
             ].join(" ")}
           >
-            {data?.data.map((p) => (
+            {products.map((p) => (
               <ProductCard key={p._id} p={p} />
             ))}
           </div>

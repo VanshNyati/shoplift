@@ -1,15 +1,17 @@
 // src/components/ProductCard.tsx
 "use client";
-import { Product } from "@/types/api";
 import { inr } from "@/lib/format";
 import { useUIStore } from "@/stores/useUIStore";
 import { useCart } from "@/hooks/useCart";
+import type { Product, CartItem } from "@/type/api"; // ⬅︎ import CartItem too
 
 export default function ProductCard({ p }: { p: Product }) {
   const { openProduct } = useUIStore();
   const { cart, add, setQty, remove } = useCart();
 
-  const line = cart.data?.items.find(i => i.product._id === p._id);
+  // Keep a strongly-typed array so the callback param isn't 'any'
+  const items: CartItem[] = cart.data?.items ?? [];
+  const line = items.find((i) => i.product._id === p._id);
   const qty = line?.quantity ?? 0;
 
   return (

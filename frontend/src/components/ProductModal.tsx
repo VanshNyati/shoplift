@@ -6,6 +6,7 @@ import { useUIStore } from "@/stores/useUIStore";
 import { inr } from "@/lib/format";
 import { useCart } from "@/hooks/useCart";
 import Spinner from "./Spinner";
+import type { CartItem } from "@/type/api"; // ✅ add
 
 export default function ProductModal() {
   const { productId, closeProduct } = useUIStore();
@@ -19,7 +20,9 @@ export default function ProductModal() {
 
   if (!productId) return null;
 
-  const line = cart.data?.items.find(i => i.product._id === productId);
+  // ✅ keep a strongly-typed array so the callback param isn't 'any'
+  const items: CartItem[] = cart.data?.items ?? [];
+  const line = items.find((i) => i.product._id === productId);
   const qty = line?.quantity ?? 0;
 
   return (
