@@ -1,5 +1,5 @@
-import { Router } from "express";
-import { Category } from "../models/Category"; // your Category model (adjust path if different)
+import { Router, Request, Response } from "express";
+import { Category } from "../models/Category";
 import { asyncHandler } from "../utils/asyncHandler";
 import { validateBody } from "../middlewares/validate";
 import { createCategorySchema, updateCategorySchema } from "../schemas/category.schema";
@@ -7,16 +7,19 @@ import { createCategorySchema, updateCategorySchema } from "../schemas/category.
 const router = Router();
 
 // list all
-router.get("/", asyncHandler(async (_req, res) => {
-  const cats = await Category.find().sort({ name: 1 });
-  res.json(cats);
-}));
+router.get(
+  "/",
+  asyncHandler(async (_req: Request, res: Response) => {
+    const cats = await Category.find().sort({ name: 1 });
+    res.json(cats);
+  })
+);
 
 // create
 router.post(
   "/",
   validateBody(createCategorySchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { name } = req.body as { name: string };
     const slug = name.trim().toLowerCase().replace(/\s+/g, "-");
     const exists = await Category.findOne({ slug });
@@ -30,7 +33,7 @@ router.post(
 router.put(
   "/:id",
   validateBody(updateCategorySchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const { name } = req.body as { name: string };
     const slug = name.trim().toLowerCase().replace(/\s+/g, "-");
     const updated = await Category.findByIdAndUpdate(
@@ -45,7 +48,7 @@ router.put(
 // delete by id
 router.delete(
   "/:id",
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     await Category.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
   })

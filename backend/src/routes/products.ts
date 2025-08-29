@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request, Response } from 'express';
 import { Product } from '../models/Product';
 import { asyncHandler } from '../utils/asyncHandler';
 import { createProductSchema, updateProductSchema } from '../schemas/product.schema';
@@ -8,13 +8,12 @@ import { Types } from 'mongoose';
 const router = Router();
 const isId = (id: string) => Types.ObjectId.isValid(id);
 
-// Utility
 const escapeRegExp = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 // GET /api/products
 router.get(
   '/',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const {
       search = '',
       category = '',
@@ -24,13 +23,11 @@ router.get(
       order = 'desc',
     } = req.query as Record<string, string>;
 
-    // base filter (category)
     const baseFilter: any = {};
     if (category && isId(category)) {
       baseFilter.categoryId = new Types.ObjectId(category);
     }
 
-    // paging & sorting
     const pageNum = Math.max(parseInt(page) || 1, 1);
     const limitNum = Math.min(Math.max(parseInt(limit) || 12, 1), 100);
     const sortKey: 'price' | 'createdAt' | 'title' =
@@ -41,7 +38,7 @@ router.get(
 
     const s = search.trim();
 
-    // ---------- PASS 1: text search (if search provided) ----------
+    // PASS 1: text search
     if (s) {
       const textFilter = { ...baseFilter, $text: { $search: s } };
       const projection = { score: { $meta: 'textScore' } };
@@ -61,13 +58,12 @@ router.get(
           limit: limitNum,
           total,
           pages: Math.ceil(total / limitNum),
-          mode: 'text', // optional debug flag
+          mode: 'text',
         });
       }
-      // else fall through to regex
     }
 
-    // ---------- PASS 2: regex fallback (partial/prefix) ----------
+    // PASS 2: regex fallback
     const regexFilter = s
       ? {
           ...baseFilter,
@@ -92,7 +88,7 @@ router.get(
       limit: limitNum,
       total,
       pages: Math.ceil(total / limitNum),
-      mode: s ? 'regex' : 'none', // optional debug flag
+      mode: s ? 'regex' : 'none',
     });
   })
 );
@@ -100,7 +96,7 @@ router.get(
 // GET /api/products/:id
 router.get(
   '/:id',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     if (!isId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const prod = await Product.findById(req.params.id);
     if (!prod) return res.status(404).json({ error: 'Product not found' });
@@ -112,7 +108,7 @@ router.get(
 router.post(
   '/',
   validateBody(createProductSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     const created = await Product.create(req.body);
     res.status(201).json(created);
   })
@@ -122,7 +118,7 @@ router.post(
 router.put(
   '/:id',
   validateBody(updateProductSchema),
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     if (!isId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const updated = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!updated) return res.status(404).json({ error: 'Product not found' });
@@ -133,7 +129,7 @@ router.put(
 // DELETE /api/products/:id
 router.delete(
   '/:id',
-  asyncHandler(async (req, res) => {
+  asyncHandler(async (req: Request, res: Response) => {
     if (!isId(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
     const deleted = await Product.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ error: 'Product not found' });
